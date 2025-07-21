@@ -1,6 +1,6 @@
 package com.dsenvolvendosistemas.finance_simulator.service;
 
-import com.dsenvolvendosistemas.finance_simulator.dto.SimulationRequest;
+import com.dsenvolvendosistemas.finance_simulator.dto.TaxSimulationRequest;
 import com.dsenvolvendosistemas.finance_simulator.dto.SimulationResult;
 import com.dsenvolvendosistemas.finance_simulator.model.MonthlySimulationData;
 import com.dsenvolvendosistemas.finance_simulator.util.FinancialCalculator;
@@ -12,9 +12,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Service
-public class IncomeSimulatorService {
+public class TaxIncomeSimulatorService {
 
-    public SimulationResult simulate(SimulationRequest request) {
+    public SimulationResult simulate(TaxSimulationRequest request) {
 
         BigDecimal initialAmount = request.getInitialAmount() != null ? request.getInitialAmount() : BigDecimal.ZERO;
         BigDecimal monthlyContribution = request.getMonthlyContribution() != null ? request.getMonthlyContribution() : BigDecimal.ZERO;
@@ -30,28 +30,9 @@ public class IncomeSimulatorService {
         BigDecimal totalInvested = initialAmount;
         BigDecimal totalInterestEarned = BigDecimal.ZERO;
 
-        // Calculate initial interest and accumulated values for month zero
-        BigDecimal interestAccruedForMonthZero = initialAmount.multiply(monthlyInterestRate);
-        BigDecimal totalAccumulatedForMonthZero = initialAmount.add(interestAccruedForMonthZero);
-
         List<MonthlySimulationData> monthlyData = new ArrayList<>();
 
-        // Add month zero data
-        monthlyData.add(new MonthlySimulationData(
-                0,
-                interestAccruedForMonthZero.setScale(2, RoundingMode.HALF_UP),
-                initialAmount.setScale(2, RoundingMode.HALF_UP),
-                interestAccruedForMonthZero.setScale(2, RoundingMode.HALF_UP),
-                totalAccumulatedForMonthZero.setScale(2, RoundingMode.HALF_UP)
-        ));
-
-        // Initialize for the loop with values after month zero
-        currentBalance = totalAccumulatedForMonthZero;
-        totalInvested = initialAmount;
-        totalInterestEarned = interestAccruedForMonthZero;
-
         for (int month = 1; month <= totalMonths; month++) {
-            // Add monthly contribution before calculating interest for the current month
             currentBalance = currentBalance.add(monthlyContribution);
             totalInvested = totalInvested.add(monthlyContribution);
 
@@ -69,11 +50,30 @@ public class IncomeSimulatorService {
             ));
         }
 
+        BigDecimal taxRate = getTaxRate(totalMonths);
+        BigDecimal taxOnProfit = totalInterestEarned.multiply(taxRate);
+        BigDecimal netProfit = totalInterestEarned.subtract(taxOnProfit);
+        BigDecimal finalAmountAfterTax = totalInvested.add(netProfit);
+
         return new SimulationResult(
-                currentBalance.setScale(2, RoundingMode.HALF_UP),
+                finalAmountAfterTax.setScale(2, RoundingMode.HALF_UP),
                 totalInvested.setScale(2, RoundingMode.HALF_UP),
                 totalInterestEarned.setScale(2, RoundingMode.HALF_UP),
                 monthlyData
         );
+    }
+
+    private BigDecimal getTaxRate(int totalMonths) {
+        int days = totalMonths * 30; // Approximate days
+
+        if (days <= 180) {
+            return new BigDecimal("0.225");
+        } else if (days <= 360) {
+            return new BigDecimal("0.20");
+        } else if (days <= 720) {
+            return new BigDecimal("0.175");
+        } else {
+            return new BigDecimal("0.15");
+        }
     }
 }

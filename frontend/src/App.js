@@ -1,8 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { Chart, registerables } from 'chart.js';
-import { useEffect, useRef } from 'react';
 
 Chart.register(...registerables);
 
@@ -21,8 +20,22 @@ function App() {
         'totalInvested',
         'totalAccumulated',
     ]);
+    const [applyTax, setApplyTax] = useState(false);
 
     const chartRef = useRef(null);
+    const [isDesktop, setIsDesktop] = useState(window.innerWidth >= 768);
+
+    useEffect(() => {
+        const handleResize = () => {
+            setIsDesktop(window.innerWidth >= 768);
+        };
+
+        window.addEventListener('resize', handleResize);
+
+        return () => {
+            window.removeEventListener('resize', handleResize);
+        };
+    }, []);
 
     useEffect(() => {
         if (simulationResult) {
@@ -59,7 +72,6 @@ function App() {
             }
 
             if (chartRef.current) {
-                // Destroy existing chart if it exists
                 if (chartRef.current.chartInstance) {
                     chartRef.current.chartInstance.destroy();
                 }
@@ -135,7 +147,6 @@ function App() {
         const { name, value } = e.target;
         let formattedValue = value;
 
-        // Replace comma with dot for number fields that should accept comma as decimal
         if (name === 'initialAmount' || name === 'monthlyContribution' || name === 'interestRate') {
             formattedValue = value.replace(/,/g, '.');
         }
@@ -149,7 +160,8 @@ function App() {
         setSimulationResult(null);
 
         try {
-            const response = await axios.post('http://localhost:8080/api/simulation', simulationRequest);
+            const url = applyTax ? 'http://localhost:8080/api/simulation/tax' : 'http://localhost:8080/api/simulation';
+            const response = await axios.post(url, simulationRequest);
             setSimulationResult(response.data);
         } catch (error) {
             if (error.response && error.response.data) {
@@ -176,9 +188,8 @@ function App() {
         });
         setSimulationResult(null);
         setErrorMessage('');
+        setApplyTax(false);
     };
-
-    
 
     const handleGraphSeriesChange = (e) => {
         const { value, checked } = e.target;
@@ -189,13 +200,11 @@ function App() {
 
     return (
         <div>
-            {/* Header Bar */}
             <nav className="navbar navbar-expand-lg navbar-dark bg-danger shadow-sm">
                 <div className="container-fluid">
                     <a className="navbar-brand" href="#">
                         SuaLogoAQUI
                     </a>
-                    {/* Optional: Top Navigation */}
                     <div className="collapse navbar-collapse" id="navbarNav">
                         <ul className="navbar-nav ms-auto">
                             <li className="nav-item">
@@ -212,8 +221,6 @@ function App() {
                 </div>
             </nav>
 
-            
-
             <div className="container my-4">
                 <div className="card shadow-lg rounded-3">
                     <div className="card-header bg-danger text-white text-center py-3">
@@ -227,7 +234,7 @@ function App() {
                             <div className="row mb-3">
                                 <div className="col-md-6 mb-3 mb-md-0">
                                     <label htmlFor="initialAmount" className="form-label">Valor Inicial (R$):</label>
-                                    <input type="number" className="form-control" id="initialAmount" name="initialAmount" value={simulationRequest.initialAmount} onChange={handleChange} placeholder="Ex: 10000" required />
+                                    <input type="number" className="form-control" id="initialAmount" name="initialAmount" value={simulationRequest.initialAmount} onChange={handleChange} placeholder="Ex: 10000" />
                                 </div>
                                 <div className="col-md-6">
                                     <label htmlFor="monthlyContribution" className="form-label">Aportes Mensais (R$):</label>
@@ -260,6 +267,12 @@ function App() {
                                     </select>
                                 </div>
                             </div>
+                            <div className="form-check mb-4">
+                                <input className="form-check-input" type="checkbox" id="applyTax" checked={applyTax} onChange={(e) => setApplyTax(e.target.checked)} />
+                                <label className="form-check-label" htmlFor="applyTax">
+                                    Aplicar Imposto sobre o Lucro
+                                </label>
+                            </div>
                             <div className="d-grid gap-2 d-md-flex justify-content-md-end">
                                 <button type="submit" className="btn btn-danger btn-lg shadow-sm">Simular</button>
                                 <button type="button" className="btn btn-outline-secondary btn-lg shadow-sm" onClick={handleClear}>Limpar</button>
@@ -272,7 +285,6 @@ function App() {
                     <div className="result-section mt-4">
                         <h3 className="text-center mb-4 text-danger">Resultados da Simulação</h3>
                         <div className="row g-3 mb-4">
-                            {/* Valor Total Final */}
                             <div className="col-md-4">
                                 <div className="card bg-danger text-white shadow-sm rounded h-100">
                                     <div className="card-body text-center">
@@ -281,7 +293,6 @@ function App() {
                                     </div>
                                 </div>
                             </div>
-                            {/* Valor Total Investido */}
                             <div className="col-md-4">
                                 <div className="card shadow-sm rounded h-100">
                                     <div className="card-body text-center">
@@ -290,7 +301,6 @@ function App() {
                                     </div>
                                 </div>
                             </div>
-                            {/* Total em Juros */}
                             <div className="col-md-4">
                                 <div className="card shadow-sm rounded h-100">
                                     <div className="card-body text-center">
@@ -301,7 +311,6 @@ function App() {
                             </div>
                         </div>
 
-                        {/* Chart Section */}
                         <div className="card shadow-sm rounded mb-4">
                             <div className="card-body">
                                 <h4 className="card-title text-danger mb-3">Gráfico de Acumulação</h4>
@@ -323,7 +332,6 @@ function App() {
                             </div>
                         </div>
 
-                        {/* Data Table Section */}
                         <div className="card shadow-sm rounded">
                             <div className="card-body">
                                 <h4 className="card-title text-danger mb-3">Detalhes Mensais</h4>
@@ -353,120 +361,120 @@ function App() {
                                 </div>
                             </div>
                         </div>
-                        <div className="container my-5">
-                            <h3 className="text-danger mb-4">Como funcionam os juros compostos e onde são aplicados</h3>
-
-                            <h4 className="mb-3">Fórmula dos juros compostos</h4>
-                            <p>A fórmula usada para calcular os juros compostos é:</p>
-                            <pre className="bg-light p-3 rounded border">M = C × (1 + i)<sup>t</sup></pre>
-
-                            <p>
-                                Onde:
-                                <ul>
-                                    <li><strong>M</strong>: montante acumulado</li>
-                                    <li><strong>C</strong>: capital inicial</li>
-                                    <li><strong>i</strong>: taxa de juros (decimal)</li>
-                                    <li><strong>t</strong>: tempo da aplicação</li>
-                                </ul>
-                            </p>
-
-                            <p>
-                                Lembre-se de manter unidade de tempo e taxa consistentes. Ex: taxa mensal → tempo em meses.
-                            </p>
-
-                            <hr />
-
-                            <h4 className="mb-3">Onde os juros compostos são utilizados</h4>
-
-                            <h5>1. Contas e faturas atrasadas</h5>
-                            <p>Juros compostos penalizam atrasos. A dívida cresce rapidamente com o tempo.</p>
-
-                            <h5>2. Empréstimos e financiamentos</h5>
-                            <p>Utilizados por instituições para garantir retorno, mas aumentam o custo para o cliente.</p>
-
-                            <h5>3. Investimentos</h5>
-                            <p>Ativos como CDBs, CRIs, Tesouro Direto e reinvestimento de dividendos se beneficiam do efeito composto.</p>
-
-                            <hr />
-
-                            <h4 className="mb-3">Diferença entre juros simples e compostos</h4>
-
-                            <div className="row">
-                                <div className="col-md-6">
-                                    <h5>Juros Simples</h5>
-                                    <ul>
-                                        <li>Incidem apenas sobre o capital inicial</li>
-                                        <li>Crescimento linear</li>
-                                        <li>Pagos periodicamente</li>
-                                    </ul>
-                                </div>
-                                <div className="col-md-6">
-                                    <h5>Juros Compostos</h5>
-                                    <ul>
-                                        <li>Calculados sobre capital + juros acumulados</li>
-                                        <li>Crescimento exponencial</li>
-                                        <li>Pagos no final ou capitalizados</li>
-                                    </ul>
-                                </div>
-                            </div>
-
-                            <hr />
-
-                            <h4 className="mb-3">Exemplo comparativo</h4>
-                            <p>Investimento de <strong>R$ 5.000</strong> com <strong>1% ao mês</strong> sem novos aportes:</p>
-
-                            <ul>
-                                <li><strong>12 meses</strong>:
-                                    <ul>
-                                        <li>Juros simples: R$ 5.600,00</li>
-                                        <li>Juros compostos: R$ 5.634,13</li>
-                                    </ul>
-                                </li>
-                            </ul>
-
-                            <div className="table-responsive">
-                                <table className="table table-bordered text-center">
-                                    <thead className="table-light">
-                                        <tr>
-                                            <th>Prazo</th>
-                                            <th>Juros Simples</th>
-                                            <th>Juros Compostos</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr>
-                                            <td>5 anos</td>
-                                            <td>R$ 8.000,00</td>
-                                            <td>R$ 9.083,48</td>
-                                        </tr>
-                                        <tr>
-                                            <td>10 anos</td>
-                                            <td>R$ 11.000,00</td>
-                                            <td>R$ 16.501,93</td>
-                                        </tr>
-                                        <tr>
-                                            <td>20 anos</td>
-                                            <td>R$ 17.000,00</td>
-                                            <td>R$ 54.462,77</td>
-                                        </tr>
-                                        <tr>
-                                            <td>30 anos</td>
-                                            <td>R$ 23.000,00</td>
-                                            <td>R$ 179.748,21</td>
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </div>
-                            <p className="mt-4">
-                                Fica claro que, com o passar dos anos, os <strong>juros compostos</strong> proporcionam um crescimento muito mais expressivo — tanto para quem investe quanto para quem deve.
-                            </p>
-                        </div>
-
                     </div>
                 )}
+
+
+                <div className="container my-5">
+                    <h3 className="text-danger mb-4">Como funcionam os juros compostos e onde são aplicados</h3>
+
+                    <h4 className="mb-3">Fórmula dos juros compostos</h4>
+                    <p>A fórmula usada para calcular os juros compostos é:</p>
+                    <pre className="bg-light p-3 rounded border">M = C × (1 + i)<sup>t</sup></pre>
+
+                    <p>
+                        Onde:
+                        <ul>
+                            <li><strong>M</strong>: montante acumulado</li>
+                            <li><strong>C</strong>: capital inicial</li>
+                            <li><strong>i</strong>: taxa de juros (decimal)</li>
+                            <li><strong>t</strong>: tempo da aplicação</li>
+                        </ul>
+                    </p>
+
+                    <p>
+                        Lembre-se de manter unidade de tempo e taxa consistentes. Ex: taxa mensal → tempo em meses.
+                    </p>
+
+                    <hr />
+
+                    <h4 className="mb-3">Onde os juros compostos são utilizados</h4>
+
+                    <h5>1. Contas e faturas atrasadas</h5>
+                    <p>Juros compostos penalizam atrasos. A dívida cresce rapidamente com o tempo.</p>
+
+                    <h5>2. Empréstimos e financiamentos</h5>
+                    <p>Utilizados por instituições para garantir retorno, mas aumentam o custo para o cliente.</p>
+
+                    <h5>3. Investimentos</h5>
+                    <p>Ativos como CDBs, CRIs, Tesouro Direto e reinvestimento de dividendos se beneficiam do efeito composto.</p>
+
+                    <hr />
+
+                    <h4 className="mb-3">Diferença entre juros simples e compostos</h4>
+
+                    <div className="row">
+                        <div className="col-md-6">
+                            <h5>Juros Simples</h5>
+                            <ul>
+                                <li>Incidem apenas sobre o capital inicial</li>
+                                <li>Crescimento linear</li>
+                                <li>Pagos periodicamente</li>
+                            </ul>
+                        </div>
+                        <div className="col-md-6">
+                            <h5>Juros Compostos</h5>
+                            <ul>
+                                <li>Calculados sobre capital + juros acumulados</li>
+                                <li>Crescimento exponencial</li>
+                                <li>Pagos no final ou capitalizados</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <hr />
+
+                    <h4 className="mb-3">Exemplo comparativo</h4>
+                    <p>Investimento de <strong>R$ 5.000</strong> com <strong>1% ao mês</strong> sem novos aportes:</p>
+
+                    <ul>
+                        <li><strong>12 meses</strong>:
+                            <ul>
+                                <li>Juros simples: R$ 5.600,00</li>
+                                <li>Juros compostos: R$ 5.634,13</li>
+                            </ul>
+                        </li>
+                    </ul>
+
+                    <div className="table-responsive">
+                        <table className="table table-bordered text-center">
+                            <thead className="table-light">
+                                <tr>
+                                    <th>Prazo</th>
+                                    <th>Juros Simples</th>
+                                    <th>Juros Compostos</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>5 anos</td>
+                                    <td>R$ 8.000,00</td>
+                                    <td>R$ 9.083,48</td>
+                                </tr>
+                                <tr>
+                                    <td>10 anos</td>
+                                    <td>R$ 11.000,00</td>
+                                    <td>R$ 16.501,93</td>
+                                </tr>
+                                <tr>
+                                    <td>20 anos</td>
+                                    <td>R$ 17.000,00</td>
+                                    <td>R$ 54.462,77</td>
+                                </tr>
+                                <tr>
+                                    <td>30 anos</td>
+                                    <td>R$ 23.000,00</td>
+                                    <td>R$ 179.748,21</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <p className="mt-4">
+                        Fica claro que, com o passar dos anos, os <strong>juros compostos</strong> proporcionam um crescimento muito mais expressivo — tanto para quem investe quanto para quem deve.
+                    </p>
+                </div>
             </div>
         </div>
-            
     );
 }
 
