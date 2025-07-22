@@ -200,6 +200,38 @@ function App() {
 
     return (
         <div>
+            <style>
+                {`
+                    .desktop, .mobile {
+                    display: block;
+                    margin-left: auto;
+                    margin-right: auto;
+                    box-sizing: border-box;
+                    border-width: 0;
+                    border-style: solid;
+                    border-color: #e5e7eb;
+                    }
+
+                    .desktop img, .mobile img {
+                    display: block;
+                    margin-left: auto;
+                    margin-right: auto;
+                    }
+
+                    .mobile {
+                    display: none;
+                    }
+
+                    @media (max-width: 767px) {
+                    .desktop {
+                        display: none;
+                    }
+                    .mobile {
+                        display: block;
+                    }
+                    }
+                `}
+                </style>
             <nav className="navbar navbar-expand-lg navbar-dark bg-danger shadow-sm">
                 <div className="container-fluid">
                     <a className="navbar-brand" href="#">
@@ -366,6 +398,7 @@ function App() {
 
 
                 <div className="container my-5">
+                    <a href="#" target="_blank" rel="noopener"><br/>         <picture class="desktop"> <source type="image/webp" srcset=""/> <img width="660" height="198" src="" alt=""/> </picture> <br/>         <picture class="mobile"> <source type="image/webp" srcset=""/> <img width="260" height="502" src="" alt=""/> </picture> <br/> </a>
                     <h3 className="text-danger mb-4">Como funcionam os juros compostos e onde são aplicados</h3>
 
                     <h4 className="mb-3">Fórmula dos juros compostos</h4>
