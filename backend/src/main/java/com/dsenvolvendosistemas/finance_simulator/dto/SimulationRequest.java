@@ -5,28 +5,26 @@ import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.NotNull;
 
 public class SimulationRequest {
-    @NotNull(message = "Valor Inicial é obrigatório.")
-    @DecimalMin(value = "0.0", inclusive = false, message = "Valor Inicial deve ser um número positivo.")
+    @NotNull(message = "Initial amount is required.")
+    @DecimalMin(value = "0.0", inclusive = false, message = "Initial amount must be a positive number.")
     private BigDecimal initialAmount;
 
-    
-
-    @NotNull(message = "Valor de Aporte Mensal é obrigatório.")
-    @DecimalMin(value = "0.0", inclusive = true, message = "Valor de Aporte Mensal deve ser um número positivo ou zero.")
+    @NotNull(message = "Monthly contribution is required.")
+    @DecimalMin(value = "0.0", inclusive = true, message = "Monthly contribution must be a positive number or zero.")
     private BigDecimal monthlyContribution;
 
-    @NotNull(message = "Taxa de Juros é obrigatória.")
-    @DecimalMin(value = "0.0", inclusive = false, message = "Taxa de Juros deve ser um número positivo.")
+    @NotNull(message = "Interest rate is required.")
+    @DecimalMin(value = "0.0", inclusive = false, message = "Interest rate must be a positive number.")
     private BigDecimal interestRate;
 
-    @NotNull(message = "Tipo de Taxa de Juros é obrigatório.")
+    @NotNull(message = "Interest rate type is required.")
     private String interestRateType;
 
-    @NotNull(message = "Tempo de Investimento é obrigatório.")
-    @DecimalMin(value = "1.0", inclusive = true, message = "Tempo de Investimento deve ser um número positivo.")
+    @NotNull(message = "Investment time is required.")
+    @DecimalMin(value = "1.0", inclusive = true, message = "Investment time must be a positive number.")
     private int investmentTime;
 
-    @NotNull(message = "Unidade de Tempo de Investimento é obrigatória.")
+    @NotNull(message = "Investment time unit is required.")
     private String investmentTimeUnit;
 
     // Getters and Setters

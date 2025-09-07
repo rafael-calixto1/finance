@@ -11,9 +11,9 @@ function App() {
         initialAmount: '',
         monthlyContribution: '0',
         interestRate: '',
-        interestRateType: 'mensal',
+        interestRateType: 'monthly',
         investmentTime: '',
-        investmentTimeUnit: 'anos',
+        investmentTimeUnit: 'years',
     });
     const [simulationResult, setSimulationResult] = useState(null);
     const [errorMessage, setErrorMessage] = useState('');
@@ -26,13 +26,13 @@ function App() {
 
     useEffect(() => {
         if (simulationResult) {
-            const months = simulationResult.monthlyData.map(data => `Mês ${data.month}`);
+            const months = simulationResult.monthlyData.map(data => `Month ${data.month}`);
 
             const datasets = [];
 
             if (selectedGraphSeries.includes('totalInvested')) {
                 datasets.push({
-                    label: 'Total Investido',
+                    label: 'Total Invested',
                     data: simulationResult.monthlyData.map(data => data.cumulativeInvested),
                     borderColor: 'rgb(75, 192, 192)',
                     tension: 0.1,
@@ -41,7 +41,7 @@ function App() {
             }
             if (selectedGraphSeries.includes('totalInterest')) {
                 datasets.push({
-                    label: 'Juros Acumulados',
+                    label: 'Cumulative Interest',
                     data: simulationResult.monthlyData.map(data => data.cumulativeInterest),
                     borderColor: 'rgb(255, 159, 64)',
                     tension: 0.1,
@@ -50,7 +50,7 @@ function App() {
             }
             if (selectedGraphSeries.includes('totalAccumulated')) {
                 datasets.push({
-                    label: 'Total Acumulado',
+                    label: 'Total Accumulated',
                     data: simulationResult.monthlyData.map(data => data.totalAccumulated),
                     borderColor: 'rgb(54, 162, 235)',
                     tension: 0.1,
@@ -86,12 +86,12 @@ function App() {
                                             label += ': ';
                                         }
                                         if (context.parsed.y !== null) {
-                                            label += new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(context.parsed.y);
+                                            label += new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(context.parsed.y);
                                         }
                                         return label;
                                     },
                                     title: function(context) {
-                                        return `Mês ${context[0].dataIndex + 1}`;
+                                        return `Month ${context[0].dataIndex + 1}`;
                                     },
                                     afterBody: function(context) {
                                         if (simulationResult && context.length > 0) {
@@ -99,9 +99,9 @@ function App() {
                                             const monthlyData = simulationResult.monthlyData[dataIndex];
                                             let tooltipText = [];
 
-                                            tooltipText.push(`Total Investido: ${new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(monthlyData.cumulativeInvested)}`);
-                                            tooltipText.push(`Juros Acumulados: ${new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(monthlyData.cumulativeInterest)}`);
-                                            tooltipText.push(`Total Acumulado: ${new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(monthlyData.totalAccumulated)}`);
+                                            tooltipText.push(`Total Invested: ${new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(monthlyData.cumulativeInvested)}`);
+                                            tooltipText.push(`Cumulative Interest: ${new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(monthlyData.cumulativeInterest)}`);
+                                            tooltipText.push(`Total Accumulated: ${new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(monthlyData.totalAccumulated)}`);
 
                                             return tooltipText;
                                         }
@@ -115,13 +115,13 @@ function App() {
                                 beginAtZero: true,
                                 title: {
                                     display: true,
-                                    text: 'Valor (R$)'
+                                    text: 'Value ($)'
                                 }
                             },
                             x: {
                                 title: {
                                     display: true,
-                                    text: 'Mês'
+                                    text: 'Month'
                                 }
                             }
                         }
@@ -149,7 +149,7 @@ function App() {
         setSimulationResult(null);
 
         try {
-            const response = await axios.post('http://localhost:8080/api/simulation', simulationRequest);
+            const response = await axios.post('http://localhost:8081/api/simulation', simulationRequest);
             setSimulationResult(response.data);
         } catch (error) {
             if (error.response && error.response.data) {
@@ -160,7 +160,7 @@ function App() {
                 }
                 setErrorMessage(errorMsg);
             } else {
-                setErrorMessage('Ocorreu um erro ao simular. Por favor, tente novamente.');
+                setErrorMessage('An error occurred while simulating. Please try again.');
             }
         }
     };
@@ -170,9 +170,9 @@ function App() {
             initialAmount: '',
             monthlyContribution: '0',
             interestRate: '',
-            interestRateType: 'mensal',
+            interestRateType: 'monthly',
             investmentTime: '',
-            investmentTimeUnit: 'anos',
+            investmentTimeUnit: 'years',
         });
         setSimulationResult(null);
         setErrorMessage('');
@@ -193,19 +193,19 @@ function App() {
             <nav className="navbar navbar-expand-lg navbar-dark bg-danger shadow-sm">
                 <div className="container-fluid">
                     <a className="navbar-brand" href="#">
-                        SuaLogoAQUI
+                        YourLogoHERE
                     </a>
                     {/* Optional: Top Navigation */}
                     <div className="collapse navbar-collapse" id="navbarNav">
                         <ul className="navbar-nav ms-auto">
                             <li className="nav-item">
-                                <a className="nav-link" href="#">Notícias</a>
+                                <a className="nav-link" href="#">News</a>
                             </li>
                             <li className="nav-item">
-                                <a className="nav-link" href="#">Empresas</a>
+                                <a className="nav-link" href="#">Companies</a>
                             </li>
                             <li className="nav-item">
-                                <a className="nav-link" href="#">Calculadoras</a>
+                                <a className="nav-link" href="#">Calculators</a>
                             </li>
                         </ul>
                     </div>
@@ -217,7 +217,7 @@ function App() {
             <div className="container my-4">
                 <div className="card shadow-lg rounded-3">
                     <div className="card-header bg-danger text-white text-center py-3">
-                        <h2 className="mb-0">Simulador de Juros Compostos</h2>
+                        <h2 className="mb-0">Compound Interest Simulator</h2>
                     </div>
                     <div className="card-body p-4">
                         <form onSubmit={handleSubmit}>
@@ -226,43 +226,43 @@ function App() {
                             )}
                             <div className="row mb-3">
                                 <div className="col-md-6 mb-3 mb-md-0">
-                                    <label htmlFor="initialAmount" className="form-label">Valor Inicial (R$):</label>
-                                    <input type="number" className="form-control" id="initialAmount" name="initialAmount" value={simulationRequest.initialAmount} onChange={handleChange} placeholder="Ex: 10000" required />
+                                    <label htmlFor="initialAmount" className="form-label">Initial Amount ($):</label>
+                                    <input type="text" className="form-control" id="initialAmount" name="initialAmount" value={simulationRequest.initialAmount} onChange={handleChange} placeholder="Ex: 10000" required />
                                 </div>
                                 <div className="col-md-6">
-                                    <label htmlFor="monthlyContribution" className="form-label">Aportes Mensais (R$):</label>
-                                    <input type="number" className="form-control" id="monthlyContribution" name="monthlyContribution" value={simulationRequest.monthlyContribution} onChange={handleChange} placeholder="Ex: 200" />
+                                    <label htmlFor="monthlyContribution" className="form-label">Monthly Contribution ($):</label>
+                                    <input type="text" className="form-control" id="monthlyContribution" name="monthlyContribution" value={simulationRequest.monthlyContribution} onChange={handleChange} placeholder="Ex: 200" />
                                 </div>
                             </div>
                             <div className="row mb-3">
                                 <div className="col-md-6 mb-3 mb-md-0">
-                                    <label htmlFor="interestRate" className="form-label">Taxa de Juros (%):</label>
-                                    <input type="number" step="0.01" className="form-control" id="interestRate" name="interestRate" value={simulationRequest.interestRate} onChange={handleChange} placeholder="Ex: 0.5" required />
+                                    <label htmlFor="interestRate" className="form-label">Interest Rate (%):</label>
+                                    <input type="text" step="0.01" className="form-control" id="interestRate" name="interestRate" value={simulationRequest.interestRate} onChange={handleChange} placeholder="Ex: 0.5" required />
                                 </div>
                                 <div className="col-md-6">
-                                    <label htmlFor="interestRateType" className="form-label">Tipo da Taxa:</label>
+                                    <label htmlFor="interestRateType" className="form-label">Rate Type:</label>
                                     <select className="form-select" id="interestRateType" name="interestRateType" value={simulationRequest.interestRateType} onChange={handleChange}>
-                                        <option value="mensal">Mensal</option>
-                                        <option value="anual">Anual</option>
+                                        <option value="monthly">Monthly</option>
+                                        <option value="annual">Annual</option>
                                     </select>
                                 </div>
                             </div>
                             <div className="row mb-4">
                                 <div className="col-md-6 mb-3 mb-md-0">
-                                    <label htmlFor="investmentTime" className="form-label">Tempo de Investimento:</label>
+                                    <label htmlFor="investmentTime" className="form-label">Investment Time:</label>
                                     <input type="number" className="form-control" id="investmentTime" name="investmentTime" value={simulationRequest.investmentTime} onChange={handleChange} placeholder="Ex: 10" required />
                                 </div>
                                 <div className="col-md-6">
-                                    <label htmlFor="investmentTimeUnit" className="form-label">Unidade de Tempo:</label>
+                                    <label htmlFor="investmentTimeUnit" className="form-label">Time Unit:</label>
                                     <select className="form-select" id="investmentTimeUnit" name="investmentTimeUnit" value={simulationRequest.investmentTimeUnit} onChange={handleChange}>
-                                        <option value="meses">Meses</option>
-                                        <option value="anos">Anos</option>
+                                        <option value="months">Months</option>
+                                        <option value="years">Years</option>
                                     </select>
                                 </div>
                             </div>
                             <div className="d-grid gap-2 d-md-flex justify-content-md-end">
-                                <button type="submit" className="btn btn-danger btn-lg shadow-sm">Simular</button>
-                                <button type="button" className="btn btn-outline-secondary btn-lg shadow-sm" onClick={handleClear}>Limpar</button>
+                                <button type="submit" className="btn btn-danger btn-lg shadow-sm">Simulate</button>
+                                <button type="button" className="btn btn-outline-secondary btn-lg shadow-sm" onClick={handleClear}>Clear</button>
                             </div>
                         </form>
                     </div>
@@ -270,14 +270,14 @@ function App() {
 
                 {simulationResult && (
                     <div className="result-section mt-4">
-                        <h3 className="text-center mb-4 text-danger">Resultados da Simulação</h3>
+                        <h3 className="text-center mb-4 text-danger">Simulation Results</h3>
                         <div className="row g-3 mb-4">
                             {/* Valor Total Final */}
                             <div className="col-md-4">
                                 <div className="card bg-danger text-white shadow-sm rounded h-100">
                                     <div className="card-body text-center">
-                                        <h5 className="card-title">Valor Total Final</h5>
-                                        <p className="fs-3 fw-bold">{new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(simulationResult.finalTotalAmount)}</p>
+                                        <h5 className="card-title">Final Total Amount</h5>
+                                        <p className="fs-3 fw-bold">{new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(simulationResult.finalTotalAmount)}</p>
                                     </div>
                                 </div>
                             </div>
@@ -285,8 +285,8 @@ function App() {
                             <div className="col-md-4">
                                 <div className="card shadow-sm rounded h-100">
                                     <div className="card-body text-center">
-                                        <h5 className="card-title text-danger">Valor Total Investido</h5>
-                                        <p className="fs-4 fw-bold text-info">{new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(simulationResult.totalInvestedAmount)}</p>
+                                        <h5 className="card-title text-danger">Total Invested Amount</h5>
+                                        <p className="fs-4 fw-bold text-info">{new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(simulationResult.totalInvestedAmount)}</p>
                                     </div>
                                 </div>
                             </div>
@@ -294,8 +294,8 @@ function App() {
                             <div className="col-md-4">
                                 <div className="card shadow-sm rounded h-100">
                                     <div className="card-body text-center">
-                                        <h5 className="card-title text-danger">Total em Juros</h5>
-                                        <p className="fs-4 fw-bold text-warning">{new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(simulationResult.totalInterestEarned)}</p>
+                                        <h5 className="card-title text-danger">Total Interest Earned</h5>
+                                        <p className="fs-4 fw-bold text-warning">{new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(simulationResult.totalInterestEarned)}</p>
                                     </div>
                                 </div>
                             </div>
@@ -304,19 +304,19 @@ function App() {
                         {/* Chart Section */}
                         <div className="card shadow-sm rounded mb-4">
                             <div className="card-body">
-                                <h4 className="card-title text-danger mb-3">Gráfico de Acumulação</h4>
+                                <h4 className="card-title text-danger mb-3">Accumulation Chart</h4>
                                 <div className="mb-3">
                                     <div className="form-check form-check-inline">
                                         <input className="form-check-input" type="checkbox" id="checkInvested" value="totalInvested" checked={selectedGraphSeries.includes('totalInvested')} onChange={handleGraphSeriesChange} />
-                                        <label className="form-check-label" htmlFor="checkInvested">Total Investido</label>
+                                        <label className="form-check-label" htmlFor="checkInvested">Total Invested</label>
                                     </div>
                                     <div className="form-check form-check-inline">
                                         <input className="form-check-input" type="checkbox" id="checkInterest" value="totalInterest" checked={selectedGraphSeries.includes('totalInterest')} onChange={handleGraphSeriesChange} />
-                                        <label className="form-check-label" htmlFor="checkInterest">Juros Acumulados</label>
+                                        <label className="form-check-label" htmlFor="checkInterest">Cumulative Interest</label>
                                     </div>
                                     <div className="form-check form-check-inline">
                                         <input className="form-check-input" type="checkbox" id="checkAccumulated" value="totalAccumulated" checked={selectedGraphSeries.includes('totalAccumulated')} onChange={handleGraphSeriesChange} />
-                                        <label className="form-check-label" htmlFor="checkAccumulated">Total Acumulado</label>
+                                        <label className="form-check-label" htmlFor="checkAccumulated">Total Accumulated</label>
                                     </div>
                                 </div>
                                 <canvas id="myChart" ref={chartRef}></canvas>
@@ -324,28 +324,29 @@ function App() {
                         </div>
 
                         {/* Data Table Section */}
+                        {/* Data Table Section */}
                         <div className="card shadow-sm rounded">
                             <div className="card-body">
-                                <h4 className="card-title text-danger mb-3">Detalhes Mensais</h4>
+                                <h4 className="card-title text-danger mb-3">Monthly Details</h4>
                                 <div className="table-responsive" style={{ maxHeight: '300px', overflowY: 'auto' }}>
                                     <table className="table table-striped table-hover">
                                         <thead>
                                             <tr>
-                                                <th>Mês</th>
-                                                <th>Juros</th>
-                                                <th>Total Investido</th>
-                                                <th>Total em Juros</th>
-                                                <th>Total Acumulado</th>
+                                                <th>Month</th>
+                                                <th>Interest</th>
+                                                <th>Total Invested</th>
+                                                <th>Total in Interest</th>
+                                                <th>Total Accumulated</th>
                                             </tr>
                                         </thead>
                                         <tbody>
                                             {simulationResult.monthlyData.map((data) => (
                                                 <tr key={data.month}>
                                                     <td>{data.month}</td>
-                                                    <td>{new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(data.interest)}</td>
-                                                    <td>{new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(data.cumulativeInvested)}</td>
-                                                    <td>{new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(data.cumulativeInterest)}</td>
-                                                    <td>{new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(data.totalAccumulated)}</td>
+                                                    <td>{new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(data.interest)}</td>
+                                                    <td>{new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(data.cumulativeInvested)}</td>
+                                                    <td>{new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(data.cumulativeInterest)}</td>
+                                                    <td>{new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(data.totalAccumulated)}</td>
                                                 </tr>
                                             ))}
                                         </tbody>
@@ -354,72 +355,72 @@ function App() {
                             </div>
                         </div>
                         <div className="container my-5">
-                            <h3 className="text-danger mb-4">Como funcionam os juros compostos e onde são aplicados</h3>
+                            <h3 className="text-danger mb-4">How compound interest works and where it is applied</h3>
 
-                            <h4 className="mb-3">Fórmula dos juros compostos</h4>
-                            <p>A fórmula usada para calcular os juros compostos é:</p>
+                            <h4 className="mb-3">Compound interest formula</h4>
+                            <p>The formula used to calculate compound interest is:</p>
                             <pre className="bg-light p-3 rounded border">M = C × (1 + i)<sup>t</sup></pre>
 
                             <p>
-                                Onde:
+                                Where:
                                 <ul>
-                                    <li><strong>M</strong>: montante acumulado</li>
-                                    <li><strong>C</strong>: capital inicial</li>
-                                    <li><strong>i</strong>: taxa de juros (decimal)</li>
-                                    <li><strong>t</strong>: tempo da aplicação</li>
+                                    <li><strong>M</strong>: accumulated amount</li>
+                                    <li><strong>C</strong>: initial capital</li>
+                                    <li><strong>i</strong>: interest rate (decimal)</li>
+                                    <li><strong>t</strong>: application time</li>
                                 </ul>
                             </p>
 
                             <p>
-                                Lembre-se de manter unidade de tempo e taxa consistentes. Ex: taxa mensal → tempo em meses.
+                                Remember to keep the time unit and rate consistent. Ex: monthly rate → time in months.
                             </p>
 
                             <hr />
 
-                            <h4 className="mb-3">Onde os juros compostos são utilizados</h4>
+                            <h4 className="mb-3">Where compound interest is used</h4>
 
-                            <h5>1. Contas e faturas atrasadas</h5>
-                            <p>Juros compostos penalizam atrasos. A dívida cresce rapidamente com o tempo.</p>
+                            <h5>1. Overdue bills and invoices</h5>
+                            <p>Compound interest penalizes delays. The debt grows rapidly over time.</p>
 
-                            <h5>2. Empréstimos e financiamentos</h5>
-                            <p>Utilizados por instituições para garantir retorno, mas aumentam o custo para o cliente.</p>
+                            <h5>2. Loans and financing</h5>
+                            <p>Used by institutions to ensure a return, but they increase the cost for the client.</p>
 
-                            <h5>3. Investimentos</h5>
-                            <p>Ativos como CDBs, CRIs, Tesouro Direto e reinvestimento de dividendos se beneficiam do efeito composto.</p>
+                            <h5>3. Investments</h5>
+                            <p>Assets such as CDBs, CRIs, Tesouro Direto and dividend reinvestment benefit from the compound effect.</p>
 
                             <hr />
 
-                            <h4 className="mb-3">Diferença entre juros simples e compostos</h4>
+                            <h4 className="mb-3">Difference between simple and compound interest</h4>
 
                             <div className="row">
                                 <div className="col-md-6">
-                                    <h5>Juros Simples</h5>
+                                    <h5>Simple Interest</h5>
                                     <ul>
-                                        <li>Incidem apenas sobre o capital inicial</li>
-                                        <li>Crescimento linear</li>
-                                        <li>Pagos periodicamente</li>
+                                        <li>Calculated only on the initial capital</li>
+                                        <li>Linear growth</li>
+                                        <li>Paid periodically</li>
                                     </ul>
                                 </div>
                                 <div className="col-md-6">
-                                    <h5>Juros Compostos</h5>
+                                    <h5>Compound Interest</h5>
                                     <ul>
-                                        <li>Calculados sobre capital + juros acumulados</li>
-                                        <li>Crescimento exponencial</li>
-                                        <li>Pagos no final ou capitalizados</li>
+                                        <li>Calculated on capital + accumulated interest</li>
+                                        <li>Exponential growth</li>
+                                        <li>Paid at the end or capitalized</li>
                                     </ul>
                                 </div>
                             </div>
 
                             <hr />
 
-                            <h4 className="mb-3">Exemplo comparativo</h4>
-                            <p>Investimento de <strong>R$ 5.000</strong> com <strong>1% ao mês</strong> sem novos aportes:</p>
+                            <h4 className="mb-3">Comparative example</h4>
+                            <p>Investment of <strong>$ 5,000</strong> with <strong>1% per month</strong> without new contributions:</p>
 
                             <ul>
-                                <li><strong>12 meses</strong>:
+                                <li><strong>12 months</strong>:
                                     <ul>
-                                        <li>Juros simples: R$ 5.600,00</li>
-                                        <li>Juros compostos: R$ 5.634,13</li>
+                                        <li>Simple interest: $ 5,600.00</li>
+                                        <li>Compound interest: $ 5,634.13</li>
                                     </ul>
                                 </li>
                             </ul>
@@ -428,37 +429,37 @@ function App() {
                                 <table className="table table-bordered text-center">
                                     <thead className="table-light">
                                         <tr>
-                                            <th>Prazo</th>
-                                            <th>Juros Simples</th>
-                                            <th>Juros Compostos</th>
+                                            <th>Term</th>
+                                            <th>Simple Interest</th>
+                                            <th>Compound Interest</th>
                                         </tr>
                                     </thead>
                                     <tbody>
                                         <tr>
-                                            <td>5 anos</td>
-                                            <td>R$ 8.000,00</td>
-                                            <td>R$ 9.083,48</td>
+                                            <td>5 years</td>
+                                            <td>$ 8,000.00</td>
+                                            <td>$ 9,083.48</td>
                                         </tr>
                                         <tr>
-                                            <td>10 anos</td>
-                                            <td>R$ 11.000,00</td>
-                                            <td>R$ 16.501,93</td>
+                                            <td>10 years</td>
+                                            <td>$ 11,000.00</td>
+                                            <td>$ 16,501.93</td>
                                         </tr>
                                         <tr>
-                                            <td>20 anos</td>
-                                            <td>R$ 17.000,00</td>
-                                            <td>R$ 54.462,77</td>
+                                            <td>20 years</td>
+                                            <td>$ 17,000.00</td>
+                                            <td>$ 54,462.77</td>
                                         </tr>
                                         <tr>
-                                            <td>30 anos</td>
-                                            <td>R$ 23.000,00</td>
-                                            <td>R$ 179.748,21</td>
+                                            <td>30 years</td>
+                                            <td>$ 23,000.00</td>
+                                            <td>$ 179,748.21</td>
                                         </tr>
                                     </tbody>
                                 </table>
                             </div>
                             <p className="mt-4">
-                                Fica claro que, com o passar dos anos, os <strong>juros compostos</strong> proporcionam um crescimento muito mais expressivo — tanto para quem investe quanto para quem deve.
+                                It is clear that, over the years, <strong>compound interest</strong> provides a much more expressive growth — both for those who invest and for those who owe.
                             </p>
                         </div>
 

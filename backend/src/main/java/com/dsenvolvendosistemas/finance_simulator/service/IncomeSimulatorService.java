@@ -23,7 +23,7 @@ public class IncomeSimulatorService {
         int investmentTime = request.getInvestmentTime();
         String investmentTimeUnit = request.getInvestmentTimeUnit();
 
-        int totalMonths = "anos".equalsIgnoreCase(investmentTimeUnit) ? investmentTime * 12 : investmentTime;
+        int totalMonths = "years".equalsIgnoreCase(investmentTimeUnit) ? investmentTime * 12 : investmentTime;
         BigDecimal monthlyInterestRate = FinancialCalculator.calculateMonthlyInterestRate(interestRate, interestRateType);
 
         BigDecimal currentBalance = initialAmount;
