@@ -1,13 +1,36 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { Chart, registerables } from 'chart.js';
-import { useEffect, useRef } from 'react';
 
 Chart.register(...registerables);
 
+interface SimulationRequest {
+  initialAmount: string;
+  monthlyContribution: string;
+  interestRate: string;
+  interestRateType: string;
+  investmentTime: string;
+  investmentTimeUnit: string;
+}
+
+interface MonthlySimulationData {
+  month: number;
+  interest: number;
+  cumulativeInvested: number;
+  cumulativeInterest: number;
+  totalAccumulated: number;
+}
+
+interface SimulationResult {
+  finalTotalAmount: number;
+  totalInvestedAmount: number;
+  totalInterestEarned: number;
+  monthlyData: MonthlySimulationData[];
+}
+
 function App() {
-    const [simulationRequest, setSimulationRequest] = useState({
+    const [simulationRequest, setSimulationRequest] = useState<SimulationRequest>({
         initialAmount: '',
         monthlyContribution: '0',
         interestRate: '',
@@ -15,17 +38,18 @@ function App() {
         investmentTime: '',
         investmentTimeUnit: 'years',
     });
-    const [simulationResult, setSimulationResult] = useState(null);
-    const [errorMessage, setErrorMessage] = useState('');
-    const [selectedGraphSeries, setSelectedGraphSeries] = useState([
+    const [simulationResult, setSimulationResult] = useState<SimulationResult | null>(null);
+    const [errorMessage, setErrorMessage] = useState<string>('');
+    const [selectedGraphSeries, setSelectedGraphSeries] = useState<string[]>([
         'totalInvested',
         'totalAccumulated',
     ]);
 
-    const chartRef = useRef(null);
+    const chartRef = useRef<HTMLCanvasElement | null>(null);
+    const chartInstanceRef = useRef<Chart | null>(null);
 
     useEffect(() => {
-        if (simulationResult) {
+        if (simulationResult && chartRef.current) {
             const months = simulationResult.monthlyData.map(data => `Month ${data.month}`);
 
             const datasets = [];
@@ -58,14 +82,13 @@ function App() {
                 });
             }
 
-            if (chartRef.current) {
-                // Destroy existing chart if it exists
-                if (chartRef.current.chartInstance) {
-                    chartRef.current.chartInstance.destroy();
-                }
+            if (chartInstanceRef.current) {
+                chartInstanceRef.current.destroy();
+            }
 
-                const ctx = chartRef.current.getContext('2d');
-                chartRef.current.chartInstance = new Chart(ctx, {
+            const ctx = chartRef.current.getContext('2d');
+            if (ctx) {
+                chartInstanceRef.current = new Chart(ctx, {
                     type: 'line',
                     data: {
                         labels: months,
@@ -131,11 +154,10 @@ function App() {
         }
     }, [simulationResult, selectedGraphSeries]);
 
-    const handleChange = (e) => {
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
         const { name, value } = e.target;
         let formattedValue = value;
 
-        // Replace comma with dot for number fields that should accept comma as decimal
         if (name === 'initialAmount' || name === 'monthlyContribution' || name === 'interestRate') {
             formattedValue = value.replace(/,/g, '.');
         }
@@ -143,16 +165,16 @@ function App() {
         setSimulationRequest({ ...simulationRequest, [name]: formattedValue });
     };
 
-    const handleSubmit = async (e) => {
+    const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         setErrorMessage('');
         setSimulationResult(null);
 
         try {
-            const response = await axios.post('http://localhost:8081/api/simulation', simulationRequest);
+            const response = await axios.post<SimulationResult>('http://localhost:8081/api/simulation', simulationRequest);
             setSimulationResult(response.data);
         } catch (error) {
-            if (error.response && error.response.data) {
+            if (axios.isAxiosError(error) && error.response) {
                 const errors = error.response.data;
                 let errorMsg = '';
                 for (const key in errors) {
@@ -178,9 +200,7 @@ function App() {
         setErrorMessage('');
     };
 
-    
-
-    const handleGraphSeriesChange = (e) => {
+    const handleGraphSeriesChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { value, checked } = e.target;
         setSelectedGraphSeries(prev =>
             checked ? [...prev, value] : prev.filter(series => series !== value)
@@ -192,20 +212,20 @@ function App() {
             {/* Header Bar */}
             <nav className="navbar navbar-expand-lg navbar-dark bg-danger shadow-sm">
                 <div className="container-fluid">
-                    <a className="navbar-brand" href="#">
+                    <a className="navbar-brand" href="/">
                         YourLogoHERE
                     </a>
                     {/* Optional: Top Navigation */}
                     <div className="collapse navbar-collapse" id="navbarNav">
                         <ul className="navbar-nav ms-auto">
                             <li className="nav-item">
-                                <a className="nav-link" href="#">News</a>
+                                <a className="nav-link" href="/">News</a>
                             </li>
                             <li className="nav-item">
-                                <a className="nav-link" href="#">Companies</a>
+                                <a className="nav-link" href="/">Companies</a>
                             </li>
                             <li className="nav-item">
-                                <a className="nav-link" href="#">Calculators</a>
+                                <a className="nav-link" href="/">Calculators</a>
                             </li>
                         </ul>
                     </div>
